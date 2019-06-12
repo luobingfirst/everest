@@ -1,0 +1,32 @@
+#!/bin/bash
+
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+export INGRESS_HOST=$(minikube ip)
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+
+declare -A NUMMAP
+if [ -z "$1" ]
+then
+	TOTAL=500
+else
+	TOTAL=$1
+fi
+echo "launch $TOTAL requests..."
+
+for (( i = 0; i < $TOTAL; i++ )) 
+do
+   RET=$(curl -s http://${GATEWAY_URL}/host)
+   if [ -z "$RET" -o "$RET" == "\n" -o "$RET" == "no healthy upstream" ]
+   then
+       RET="failure"
+   fi
+   NUMMAP[${RET}]=$((NUMMAP[${RET}]+1))
+done
+
+KEYS=(${!NUMMAP[@]})
+for (( I=0; $I < ${#NUMMAP[@]}; I+=1 )); do
+  KEY=${KEYS[$I]}
+  V=${NUMMAP[$KEY]}
+  PERCENT=$(bc <<< "scale=3;$V*100/$TOTAL")
+  echo "$KEY : ${NUMMAP[$KEY]}(${PERCENT}%)"
+done

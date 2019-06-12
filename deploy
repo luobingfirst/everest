@@ -1,0 +1,51 @@
+#!/bin/bash
+
+OP="apply"
+
+deploy_demo() {
+    echo "---> $OP demo"
+
+	if [ "$OP" == "apply" -o "$OP" == "delete" ]
+	then
+		kubectl $OP -f ./networking/virtual-service.yaml
+		kubectl $OP -f ./networking/destination-rule.yaml 
+		kubectl $OP -f ./networking/hostname-gateway.yaml 
+		kubectl $OP -f ./platform/kube/hostname.yaml
+	elif [ "$OP" == "v1" ]
+	then 
+		kubectl apply -f ./networking/virtual-service.yaml
+		kubectl apply -f ./networking/destination-rule.yaml 
+	elif [ "$OP" == "v2" ]
+	then
+		kubectl apply -f ./networking/virtual-service-percent.yaml
+		kubectl apply -f ./networking/destination-rule-three-category.yaml
+	fi
+}
+
+for arg in "$@"
+do
+    case "$1" in
+	-h)
+	    echo "deploy [-d]"
+	    echo "deploy or undeploy istio trafic demo"
+	    echo "-d undeploy"
+		echo "-1 apply controller version 1"
+		echo "-2 apply controller undeploy"
+	    exit
+	    ;;
+	-d)
+	    OP="delete"
+	    shift
+	    ;;
+	-1)
+	    OP="v1"
+	    shift
+	    ;;
+	-2)
+	    OP="v2"
+	    shift
+	    ;;
+    esac
+done
+
+deploy_demo

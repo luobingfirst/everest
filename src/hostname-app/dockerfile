@@ -1,0 +1,3 @@
+FROM node:7
+ADD hostname.js /hostname.js
+ENTRYPOINT ["node", "hostname.js"]

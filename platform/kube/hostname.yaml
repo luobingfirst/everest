@@ -1,0 +1,42 @@
+#=====================================================================
+#Hostname Service
+#=====================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: hostname
+  labels:
+    app: hostname
+    service: hostname
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: hostname
+---
+#=====================================================================
+#Hostname Deployment
+#=====================================================================
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hostname-v2
+  labels:
+    app: hostname
+    version: v2
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hostname
+        version: v2
+    spec:
+      containers:
+      - name: hostname
+        image: hostname:1.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+---
