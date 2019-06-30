@@ -19,17 +19,16 @@ There are two version of control.
   - ./deploy -d
 ## Version 1 control
 All control can be done under the root of repository
-1. Add initial label
-  - ./marknormal
-2. Change status of intended pod
-  - ./setstatus <pod name> <normal|busy>
-3. Test request ditribution
+1. Change status of intended pod
+  - ./cmdshell.py setStatus <pod name> <normal|busy>
+2. Test request ditribution
   - ./tstdis <number of requests, default 500>
 ## Version 2 control
 All control can be done under the root of repository
-1. Add initial label
-  - ./marknormal
-2. Change status of intended pod
-  - ./setstatus <pod name> <idle|normal|busy>
-3. Test request ditribution(if there's no idle or busy pods, istio will return failure)
+1. Change status of intended pod
+  - ./cmdshell.py setStatus <pod name> <idle|normal|busy>
+2. Test request ditribution(if there's no idle or busy pods, istio will return failure)
   - ./tstdis <number of requests, default 500>
+## Scale # of pods in deploymnet
+1. Change number of intended pod
+  - ./cmdshell.py scale <deployment name> <# of pods>

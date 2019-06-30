@@ -1,9 +1,0 @@
-#!/bin/bash
-
-names=$(kubectl get po -l 'status notin (idle, normal, busy)' -o jsonpath='{.items[*].metadata.name}'|tr " " "\n")
-
-for name in $names
-do
-    ./setstatus $name normal
-done
-

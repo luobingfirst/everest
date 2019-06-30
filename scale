@@ -1,3 +1,0 @@
-#!/bin/bash
-
-kubectl scale deployments/hostname-v2 --replicas=$1
