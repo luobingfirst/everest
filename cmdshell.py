@@ -2,6 +2,7 @@
 
 import sys
 import inspect
+import ast
 from cmd import cmd
 
 def help(shellname):
@@ -17,16 +18,24 @@ def help(shellname):
 
 def main():
     c = cmd()
+    correctPar = False
     if (len(sys.argv)>=2):
         method = getattr(c, sys.argv[1], "Invalid method")
         if callable(method):
             if (len(sys.argv)>=3):
-                method(*sys.argv[2:])
+                args = []
+                for sarg in sys.argv[2:]:
+                    try:
+                        arg = ast.literal_eval(sarg)
+                    except (ValueError, SyntaxError):
+                        arg = sarg
+                    args.append(arg)
+                #print(args)
+                method(*args)
             else:
                 method()
-        else:
-            help(sys.argv[0])
-    else:
+            correctPar = True
+    if (not correctPar):
         help(sys.argv[0])
     del c
 

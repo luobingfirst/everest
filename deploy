@@ -19,6 +19,10 @@ deploy_demo() {
 	then
 		kubectl apply -f ./networking/virtual-service-percent.yaml
 		kubectl apply -f ./networking/destination-rule-three-category.yaml
+	elif [ "$OP" == "app only" ]
+	then
+		kubectl apply -f ./networking/hostname-gateway.yaml
+		kubectl apply -f ./platform/kube/hostname.yaml
 	fi
 }
 
@@ -43,6 +47,10 @@ do
 	    ;;
 	-2)
 	    OP="v2"
+	    shift
+	    ;;
+	-a)
+            OP="app only"
 	    shift
 	    ;;
     esac
