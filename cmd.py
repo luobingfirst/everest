@@ -9,6 +9,24 @@ class cmd:
         self.customObjectsApi = client.CustomObjectsApi()
 
     def getPercentFromWeight(self, selector, weight, namespace="default", adjusts={}):
+        """
+        Get percent according to weight policy
+
+        :param selector: The selecotr for all pods.
+        :type: String
+        
+        :param weight: The target weight, with subset(category) name as keys and related weight as value, e.g.{"idle":30,"normal":50, "busy":20}. Be sure that it cover all category but the sum is not necessary to be 100.
+        :type: Dict
+        
+        :param namespace: The namespace of pods.
+        :type: String
+        
+        :para adjusts: Adjust the number of pods in specified categories, with subset(category) name as keys and number of pods(could be positive or negative) as value.
+        :type: Dict
+        
+        :return: percent and ditribution
+        :rtype: Dict
+        """
         #get number of pods for each category, stored in distribution
         if (len(selector)>0):
             selector = selector + ", "
@@ -46,6 +64,27 @@ class cmd:
         return ({"percent":percent, "distribution":distribution})
 
     def changeStatusWithWeightPolicy(self, pod, status, vsName, selector, weight, namespace="default"):
+        """
+        Set status and change percent according to weight policy
+
+        :param pod: The name of pod.
+        :type: String
+        
+        :param status: The target status of pod.
+        :type: String
+        
+        :param vsName: The name of virtual service.
+        :type: String
+        
+        :param selector: The selecotr for all pods.
+        :type: String
+        
+        :param weight: The target weight, with subset(category) name as keys and related weight as value, e.g.{"idle":30,"normal":50, "busy":20}. Be sure that it cover all category but the sum is not necessary to be 100.
+        :type: Dict
+        
+        :param namespace: The namespace of pods.
+        :type: String
+        """
         #get original status of the pod
         thePodInfo = self.coreApi.list_namespaced_pod(namespace, field_selector="metadata.name="+pod, watch=False)
         if (len(thePodInfo.items)<0):
@@ -128,6 +167,18 @@ class cmd:
         #print(ret)
 
     def patchVSWeight(self, vsName, percent, namespace="default"):
+        """
+        Change the percent(weight in vs) of vs
+
+        :param vsName: The name of virtual service.
+        :type: String
+        
+        :param percent: The weight to modify with subset name as keys and related percent as value, e.g.{"idle":30,"normal":50}. Be sure that the sum of resulted weight should be exact 100 or this function will fail
+        :type: Dict
+        
+        :param namespace: The namespace of virtual service.
+        :type: String
+        """
         print("change "+ vsName + " weight to " + str(percent))
         version = "v1alpha3"
         group = "networking.istio.io"
