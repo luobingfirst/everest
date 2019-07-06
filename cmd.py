@@ -109,17 +109,25 @@ class cmd:
         #       1) modify to X if category descrease, X is final state if no category increase, otherwise X is middle state
         #       2) set state
         #       3) modify to final state if category increase
+        tmpPod = ""
+        for k,v in percent.items():
+            if (not (k==status or k==thePodStatus) and v>0):
+                tmpPod = k
+                break
         pStatus = percent[status]
         if (distribution[thePodStatus]==0):
             if (distribution[status]==1):
-                percent[status] = 0
-                percent[thePodStatus] = percent[thePodStatus] + pStatus
-            self.patchVSWeight(vsName, percent, namespace)
+                if (not tmpPod==""):
+                    percent[status] = 0
+                    percent[tmpPod] = percent[tmpPod] + pStatus
+                    self.patchVSWeight(vsName, percent, namespace)
+            else:
+                self.patchVSWeight(vsName, percent, namespace)
         self.setStatus(pod, status, namespace)
         if (distribution[status]==1):
-            if (distribution[thePodStatus]==0):
+            if (distribution[thePodStatus]==0 and not tmpPod==""):
                 percent[status] = pStatus
-                percent[thePodStatus] = percent[thePodStatus] - pStatus
+                percent[tmpPod] = percent[tmpPod] - pStatus
             self.patchVSWeight(vsName, percent, namespace)
 
     def setStatus(self, pod, status, namespace="default"):
