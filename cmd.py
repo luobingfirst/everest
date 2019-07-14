@@ -1,4 +1,5 @@
 import yaml
+import time
 from kubernetes import client, config
 
 class cmd:
@@ -62,6 +63,34 @@ class cmd:
         print("target percent : " + str(percent))
         
         return ({"percent":percent, "distribution":distribution})
+
+    def scaleWithWeightPolicy(self, deployment, nPods, vsName, selector, weight, namespace="default"):
+        """
+        Scale # of pods and change percent according to weight policy
+
+        :param deployment: The name of deployment.
+        :type: String
+        
+        :param nPods: Number of pods in deployment.
+        :type: String/Int
+        
+        :param vsName: The name of virtual service.
+        :type: String
+        
+        :param selector: The selecotr for all pods.
+        :type: String
+        
+        :param weight: The target weight, with subset(category) name as keys and related weight as value, e.g.{"idle":30,"normal":50, "busy":20}. Be sure that it cover all category but the sum is not necessary to be 100.
+        :type: Dict
+        
+        :param namespace: The namespace of pods.
+        :type: String
+        """
+        self.scale(deployment, nPods, namespace)
+        time.sleep(1)
+        ret = self.getPercentFromWeight(selector, weight, namespace)
+        percent = ret["percent"]
+        self.patchVSWeight(vsName, percent, namespace)
 
     def changeStatusWithWeightPolicy(self, pod, status, vsName, selector, weight, namespace="default"):
         """
